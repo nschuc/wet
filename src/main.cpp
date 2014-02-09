@@ -139,174 +139,6 @@ static ogl::Program* LoadShaders(const char* vertFilename, const char* fragFilen
     return new ogl::Program(shaders);
 }
 
-static void loadOcean() {
-    oceanShader = LoadShaders("res/shaders/ocean/vert.glsl", "res/shaders/ocean/frag.glsl");
-    ocean = new Ocean(128, 0.0005f, vector2(32.0f, 32.0f), 64, false);
-    ocean->enableAttribs(oceanShader->attrib("vertex"), oceanShader->attrib("normal"));
-}
-
-static void loadDragon(string filename){
-    dragon = new ogl::cObj("res/dragon_smooth.obj");
-    gDragon.shaders = LoadShaders("res/shaders/shiny/vert.glsl", "res/shaders/shiny/frag.glsl");
-    gDragon.drawCount = dragon->setupBufferObjects(gDragon.shaders->attrib("vertex"), gDragon.shaders->attrib("normal"));
-}
-
-static void loadSkybox() {
-    loadCubemap("res/stormy/", "tga");
-    gSkybox.shaders = LoadShaders("res/shaders/skybox/vert.glsl", "res/shaders/skybox/frag.glsl");
-    gSkybox.drawType = GL_TRIANGLES;
-    gSkybox.drawStart = 0;
-    gSkybox.drawCount = 6*2*3;
-    glGenBuffers(1, &gSkybox.vbo);
-    glGenVertexArrays(1, &gSkybox.vao);
-
-
-    // bind the VAO
-    glBindVertexArray(gSkybox.vao);
-
-    // bind the VBO
-    glBindBuffer(GL_ARRAY_BUFFER, gSkybox.vbo);
-
-    // Make a cube out of triangles (two triangles per side)
-    GLfloat vertexData[] = {
-        //  X     Y     Z
-        // bottom
-        -1.0f,-1.0f,-1.0f,  
-         1.0f,-1.0f,-1.0f,  
-        -1.0f,-1.0f, 1.0f,  
-         1.0f,-1.0f,-1.0f,  
-         1.0f,-1.0f, 1.0f,  
-        -1.0f,-1.0f, 1.0f,  
-        -1.0f, 1.0f,-1.0f, 
-        -1.0f, 1.0f, 1.0f, 
-         1.0f, 1.0f,-1.0f, 
-         1.0f, 1.0f,-1.0f, 
-        -1.0f, 1.0f, 1.0f, 
-         1.0f, 1.0f, 1.0f, 
-        -1.0f,-1.0f, 1.0f, 
-         1.0f,-1.0f, 1.0f, 
-        -1.0f, 1.0f, 1.0f, 
-         1.0f,-1.0f, 1.0f, 
-         1.0f, 1.0f, 1.0f, 
-        -1.0f, 1.0f, 1.0f, 
-        -1.0f,-1.0f,-1.0f,  
-        -1.0f, 1.0f,-1.0f,  
-         1.0f,-1.0f,-1.0f,  
-         1.0f,-1.0f,-1.0f,  
-        -1.0f, 1.0f,-1.0f,  
-         1.0f, 1.0f,-1.0f,  
-        -1.0f,-1.0f, 1.0f,  
-        -1.0f, 1.0f,-1.0f,  
-        -1.0f,-1.0f,-1.0f,  
-        -1.0f,-1.0f, 1.0f,  
-        -1.0f, 1.0f, 1.0f,  
-        -1.0f, 1.0f,-1.0f,  
-         1.0f,-1.0f, 1.0f, 
-         1.0f,-1.0f,-1.0f, 
-         1.0f, 1.0f,-1.0f, 
-         1.0f,-1.0f, 1.0f, 
-         1.0f, 1.0f,-1.0f,
-         1.0f, 1.0f, 1.0f,
-    };
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
-
-    // connect the xyz to the "vert" attribute of the vertex shader
-    glEnableVertexAttribArray(gSkybox.shaders->attrib("vertex"));
-
-    glVertexAttribPointer(gSkybox.shaders->attrib("vertex"), 3, GL_FLOAT, GL_FALSE, 3*sizeof(GLfloat), NULL);
-
-    // unbind the VAO
-    glBindVertexArray(0);
-}
-
-static void LoadWoodenCrateAsset() {
-    gWoodenCrate.shaders = LoadShaders("res/shaders/shiny/vert.glsl", "res/shaders/shiny/frag.glsl");
-    gWoodenCrate.drawType = GL_TRIANGLES;
-    gWoodenCrate.drawStart = 0;
-    gWoodenCrate.drawCount = 6*2*3;
-    gWoodenCrate.shininess = 80.0f;
-    gWoodenCrate.specularColor = glm::vec3(1.0f, 1.0f, 1.0f);
-    gWoodenCrate.texture = LoadTexture("res/wooden-crate.jpg");
-    glGenBuffers(1, &gWoodenCrate.vbo);
-    glGenVertexArrays(1, &gWoodenCrate.vao);
-
-
-    // bind the VAO
-    glBindVertexArray(gWoodenCrate.vao);
-
-    // bind the VBO
-    glBindBuffer(GL_ARRAY_BUFFER, gWoodenCrate.vbo);
-
-    // Make a cube out of triangles (two triangles per side)
-    GLfloat vertexData[] = {
-        //  X     Y     Z       U     V
-        // bottom
-        -1.0f,-1.0f,-1.0f,   0.0f, 0.0f,    0.0f, -1.0f, 0.0f,
-         1.0f,-1.0f,-1.0f,   1.0f, 0.0f,    0.0f, -1.0f, 0.0f,
-        -1.0f,-1.0f, 1.0f,   0.0f, 1.0f,    0.0f, -1.0f, 0.0f,
-         1.0f,-1.0f,-1.0f,   1.0f, 0.0f,    0.0f, -1.0f, 0.0f,
-         1.0f,-1.0f, 1.0f,   1.0f, 1.0f,    0.0f, -1.0f, 0.0f,
-        -1.0f,-1.0f, 1.0f,   0.0f, 1.0f,    0.0f, -1.0f, 0.0f,
-
-        // top
-        -1.0f, 1.0f,-1.0f,   0.0f, 0.0f,    0.0f, 1.0f, 0.0f,
-        -1.0f, 1.0f, 1.0f,   0.0f, 1.0f,    0.0f, 1.0f, 0.0f,
-         1.0f, 1.0f,-1.0f,   1.0f, 0.0f,    0.0f, 1.0f, 0.0f,
-         1.0f, 1.0f,-1.0f,   1.0f, 0.0f,    0.0f, 1.0f, 0.0f,
-        -1.0f, 1.0f, 1.0f,   0.0f, 1.0f,    0.0f, 1.0f, 0.0f,
-         1.0f, 1.0f, 1.0f,   1.0f, 1.0f,    0.0f, 1.0f, 0.0f,
-
-        // front
-        -1.0f,-1.0f, 1.0f,   1.0f, 0.0f,    0.0f, 0.0f, 1.0f,
-         1.0f,-1.0f, 1.0f,   0.0f, 0.0f,    0.0f, 0.0f, 1.0f,
-        -1.0f, 1.0f, 1.0f,   1.0f, 1.0f,    0.0f, 0.0f, 1.0f,
-         1.0f,-1.0f, 1.0f,   0.0f, 0.0f,    0.0f, 0.0f, 1.0f,
-         1.0f, 1.0f, 1.0f,   0.0f, 1.0f,    0.0f, 0.0f, 1.0f,
-        -1.0f, 1.0f, 1.0f,   1.0f, 1.0f,    0.0f, 0.0f, 1.0f,
-
-        // back
-        -1.0f,-1.0f,-1.0f,   0.0f, 0.0f,    0.0f, 0.0f, -1.0f,
-        -1.0f, 1.0f,-1.0f,   0.0f, 1.0f,    0.0f, 0.0f, -1.0f,
-         1.0f,-1.0f,-1.0f,   1.0f, 0.0f,    0.0f, 0.0f, -1.0f,
-         1.0f,-1.0f,-1.0f,   1.0f, 0.0f,    0.0f, 0.0f, -1.0f,
-        -1.0f, 1.0f,-1.0f,   0.0f, 1.0f,    0.0f, 0.0f, -1.0f,
-         1.0f, 1.0f,-1.0f,   1.0f, 1.0f,    0.0f, 0.0f, -1.0f,
-
-        // left
-        -1.0f,-1.0f, 1.0f,   0.0f, 1.0f,    -1.0f, 0.0f, 0.0f,
-        -1.0f, 1.0f,-1.0f,   1.0f, 0.0f,    -1.0f, 0.0f, 0.0f,
-        -1.0f,-1.0f,-1.0f,   0.0f, 0.0f,    -1.0f, 0.0f, 0.0f,
-        -1.0f,-1.0f, 1.0f,   0.0f, 1.0f,    -1.0f, 0.0f, 0.0f,
-        -1.0f, 1.0f, 1.0f,   1.0f, 1.0f,    -1.0f, 0.0f, 0.0f,
-        -1.0f, 1.0f,-1.0f,   1.0f, 0.0f,    -1.0f, 0.0f, 0.0f,
-
-        // right
-         1.0f,-1.0f, 1.0f,   1.0f, 1.0f,    1.0f, 0.0f, 0.0f,
-         1.0f,-1.0f,-1.0f,   1.0f, 0.0f,    1.0f, 0.0f, 0.0f,
-         1.0f, 1.0f,-1.0f,   0.0f, 0.0f,    1.0f, 0.0f, 0.0f,
-         1.0f,-1.0f, 1.0f,   1.0f, 1.0f,    1.0f, 0.0f, 0.0f,
-         1.0f, 1.0f,-1.0f,   0.0f, 0.0f,    1.0f, 0.0f, 0.0f,
-         1.0f, 1.0f, 1.0f,   0.0f, 1.0f,    1.0f, 0.0f, 0.0f
-    };
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
-
-    // connect the xyz to the "vert" attribute of the vertex shader
-    glEnableVertexAttribArray(gWoodenCrate.shaders->attrib("vertex"));
-    glVertexAttribPointer(gWoodenCrate.shaders->attrib("vertex"), 3, GL_FLOAT, GL_FALSE, 8*sizeof(GLfloat), NULL);
-
-    // connect the uv coords to the "vertTexCoord" attribute of the vertex shader
-    // glEnableVertexAttribArray(gWoodenCrate.shaders->attrib("vertTexCoord"));
-    // glVertexAttribPointer(gWoodenCrate.shaders->attrib("vertTexCoord"), 2, GL_FLOAT, GL_TRUE,  8*sizeof(GLfloat), (const GLvoid*)(3 * sizeof(GLfloat)));
-
-    // connect the uv coords to the "vertTexCoord" attribute of the vertex shader
-    glEnableVertexAttribArray(gWoodenCrate.shaders->attrib("normal"));
-    glVertexAttribPointer(gWoodenCrate.shaders->attrib("normal"), 3, GL_FLOAT, GL_TRUE,  8*sizeof(GLfloat), (const GLvoid*)(5 * sizeof(GLfloat)));
-
-
-    // unbind the VAO
-    glBindVertexArray(0);
-}
-
 // convenience function that returns a translation matrix
 glm::mat4 translate(GLfloat x, GLfloat y, GLfloat z) {
     return glm::translate(glm::mat4(), glm::vec3(x,y,z));
@@ -345,29 +177,6 @@ static void CreateInstances() {
     gInstances.push_back(hMid);
 }
 
-static void renderSkybox() {
-    ogl::Program* shaders = gSkybox.shaders;
-    //bind the shaders
-    shaders->use();
-
-    //set the shader uniforms
-    shaders->setUniform("camera", gCamera.matrix());
-    shaders->setUniform("model",  glm::translate(glm::mat4(), gCamera.position()) * scale(500, 500, 500));
-
-    //bind the texture
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap);
-
-    //bind VAO and draw
-    glBindVertexArray(gSkybox.vao);
-    glDrawArrays(gSkybox.drawType, gSkybox.drawStart, gSkybox.drawCount);
-
-    //unbind everything
-    glBindVertexArray(0);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-    shaders->stopUsing();
-}
-
 static void RenderInstance(const ModelInstance& inst) {
     ModelAsset* asset = inst.asset;
     ogl::Program* shaders = asset->shaders;
@@ -375,23 +184,11 @@ static void RenderInstance(const ModelInstance& inst) {
     //bind the shaders
     shaders->use();
 
-    //set the shader uniforms
-    // shaders->setUniform("light.position", gLight.position);
-    // shaders->setUniform("light.intensities", gLight.intensities);
-    // shaders->setUniform("light.attenuation", gLight.attenuation);
-    // shaders->setUniform("light.ambientCoefficient", gLight.ambientCoefficient);
-    // shaders->setUniform("material.tex", 0);
-    // shaders->setUniform("material.shininess", asset->shininess);
-    // shaders->setUniform("material.specularColor", asset->specularColor);
     shaders->setUniform("model", inst.transform);
     shaders->setUniform("view", gCamera.view());
     shaders->setUniform("projection", gCamera.projection());
     shaders->setUniform("model", glm::mat4());
 
-
-    //bind the texture
-    // glActiveTexture(GL_TEXTURE0);
-    // glBindTexture(GL_TEXTURE_2D, asset->texture->object());
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap);
@@ -407,57 +204,16 @@ static void RenderInstance(const ModelInstance& inst) {
     shaders->stopUsing();
 }
 
-static void renderOcean() {
-    oceanShader->use();
-
-    oceanShader->setUniform("light_position", gLight.position);
-    oceanShader->setUniform("view", gCamera.view());
-    oceanShader->setUniform("projection", gCamera.projection());
-
-       //bind the texture
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap);
-
-    ocean->render(oceanShader);
-
-    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-
-    oceanShader->stopUsing();
-}
-
-static void renderDragon() {
-    gDragon.shaders->use();
-
-    gDragon.shaders->setUniform("view", gCamera.view());
-    gDragon.shaders->setUniform("projection", gCamera.projection());
-    gDragon.shaders->setUniform("model", glm::rotate(glm::mat4(), -90.f, glm::vec3(1.f, 0.f, 0.f)) * scale(5, 5, 5));
-
-       //bind the texture
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, cubemap);
-
-    dragon->render(gDragon.shaders->attrib("vertex"), gDragon.shaders->attrib("normal"));
-
-    glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-
-    gDragon.shaders->stopUsing();
-}
-
 // draws a single frame
 static void render() {
     // clear everything
     glClearColor(0, 0, 1, 1);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    renderSkybox();
-
     std::list<ModelInstance>::const_iterator it;
     for(it = gInstances.begin(); it != gInstances.end(); ++it){
         RenderInstance(*it);
     }
-
-    // renderDragon();
-    renderOcean();
     
     // swap the display buffers (displays what was just drawn)
     glfwSwapBuffers();
@@ -519,10 +275,7 @@ int main(int argc, char *argv[]) {
     if(!GLEW_VERSION_3_2)
         throw std::runtime_error("OpenGL 3.2 API is not available.");
 
-    // loadDragon("res/dragon_smooth.obj");
-    loadSkybox();
-    loadOcean();
-    LoadWoodenCrateAsset();
+
     CreateInstances();
 
     glEnable(GL_DEPTH_TEST);
