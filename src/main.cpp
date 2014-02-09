@@ -141,7 +141,7 @@ static ogl::Program* LoadShaders(const char* vertFilename, const char* fragFilen
 
 static void loadOcean() {
     oceanShader = LoadShaders("res/shaders/ocean/vert.glsl", "res/shaders/ocean/frag.glsl");
-    ocean = new Ocean(64, 0.0005f, vector2(32.0f, 32.0f), 36, false);
+    ocean = new Ocean(128, 0.0005f, vector2(32.0f, 32.0f), 64, false);
     ocean->enableAttribs(oceanShader->attrib("vertex"), oceanShader->attrib("normal"));
 }
 
@@ -519,7 +519,7 @@ int main(int argc, char *argv[]) {
     if(!GLEW_VERSION_3_2)
         throw std::runtime_error("OpenGL 3.2 API is not available.");
 
-    loadDragon("res/dragon_smooth.obj");
+    // loadDragon("res/dragon_smooth.obj");
     loadSkybox();
     loadOcean();
     LoadWoodenCrateAsset();

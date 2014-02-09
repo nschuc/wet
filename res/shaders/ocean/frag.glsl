@@ -3,7 +3,7 @@
 in vec3 normal_vector;
 in vec3 light_vector;
 in vec3 halfway_vector;
-in float fog_factor;
+in vec3 reflected;
 uniform samplerCube skybox;
 out vec4 fragColor;
 
@@ -13,12 +13,12 @@ void main (void) {
 	vec3 light_vector1   = normalize(light_vector);
 	vec3 halfway_vector1 = normalize(halfway_vector);
 
-	vec4 c = vec4(1,1,1,1);
+	vec4 c = texture(skybox, reflected);
 
 	vec4 emissive_color = vec4(1.0, 1.0, 1.0,  1.0);
 	vec4 ambient_color  = vec4(0.0, 0.65, 0.75, 1.0);
 	vec4 diffuse_color  = vec4(0.5, 0.65, 0.75, 1.0);
-	vec4 specular_color = vec4(1.0, 0.25, 0.0,  1.0);
+	vec4 specular_color = c;
 
 	float emissive_contribution = 0.00;
 	float ambient_contribution  = 0.30;
@@ -34,8 +34,6 @@ void main (void) {
                     (facing ?
 			specular_color * specular_contribution * c * max(pow(dot(normal1, halfway_vector1), 120.0), 0.0) :
 			vec4(0.0, 0.0, 0.0, 0.0));
-
-	fragColor = fragColor * (1.0-fog_factor) + vec4(0.25, 0.75, 0.65, 1.0) * (fog_factor);
 
 	fragColor.a = 1.0;
 }
